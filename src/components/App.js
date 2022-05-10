@@ -5,6 +5,7 @@ import DappToken from '../abis/DappToken.json'
 import TokenFarm from '../abis/TokenFarm.json'
 import Navbar from './Navbar'
 import './App.css'
+import Main from './Main'
 
 class App extends Component {
 
@@ -70,6 +71,21 @@ class App extends Component {
     }
   }
 
+  stakeTokens = (amount)=>{
+    this.setState({loading : true})
+    this.state.daiToken.methods.approve(this.state.tokenFarm._address, amount).send({ from: this.state.account}).on('transactionHash', (hash)=>{
+      this.state.tokenFarm.methods.stakeTokens(amount).send({ from: this.state.account}).on("transactionHash", (hash) =>{
+        this.setState({loading: false})
+      })
+    })
+  }
+
+  unstakeTokens = (amount)=>{
+    this.setState({loading : true})
+      this.state.tokenFarm.methods.unstakeTokens().send({ from: this.state.account}).on("transactionHash", (hash) =>{
+        this.setState({loading: false})
+      })
+  }
 
   constructor(props) {
     super(props)
@@ -87,12 +103,18 @@ class App extends Component {
 
 
   render() {
-    console.log({
-      daiBalance : this.state.daiTokenBalance,
-      dappBalance : this.state.dappTokenBalance,
-      stakingBalance : this.state.stakingBalance,
-      loading : this.state.loading
-    })
+    let content
+    if(this.state.loading){
+      content = <p id="loader" className="text-center">loading...</p>
+    }else{
+      content = <Main 
+                  daiTokenBalance={this.state.daiTokenBalance} 
+                  dappTokenBalance={this.state.dappTokenBalance}
+                  stakingBalance={this.state.stakingBalance}
+                  stakeTokens={this.stakeTokens}
+                  unstakeTokens={this.unstakeTokens}
+                />
+    }
     return (
       <div>
         <Navbar account={this.state.account} />
@@ -107,7 +129,7 @@ class App extends Component {
                 >
                 </a>
 
-                <h1>Hello, World!</h1>
+               {content}
 
               </div>
             </main>
