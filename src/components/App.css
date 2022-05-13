@@ -1,1 +1,6 @@
 /* Styles go here */
+.unstake {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
